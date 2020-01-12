@@ -1,0 +1,15 @@
+{
+  "name": "api_boy",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node .",
+    "watch": "cd client && ng build --watch"
+  },
+  "dependencies": {
+    "acts": "^2.5.4",
+    "ts-tooling": "^2.3.1",
+    "sequelize": "5.21.3",
+    "pg": "^7.17.0",
+    "pg-hstore": "^2.3.3"
+  }
+}
