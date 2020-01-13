@@ -5,9 +5,10 @@ module.exports.GET = async (req, res, next) => {
     console.info(models);
     for (const key of Object.keys(models)) {
         info.Add({
-            name: models[key].name,
-            columns: models[key].rawAttributes,
-            associations: models[key].associations,
+            name: models[key].instance.name,
+            columns: models[key].instance.rawAttributes,
+            associations: models[key].instance.associations,
+            meta: models[key].meta,
         });
     }
     next(info);

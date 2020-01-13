@@ -3,6 +3,8 @@ const fs = require('fs');
 const path = require('path');
 
 const TYPES = {
+    email: 'DataTypes.STRING',
+    password: 'DataTypes.STRING',
     string: 'DataTypes.STRING',
     bin: 'DataTypes.STRING.BINARY',
     text: 'DataTypes.TEXT',
@@ -31,7 +33,7 @@ const TYPES = {
     geom: 'DataTypes.GEOMETRY',
 };
 
-function fillTemplate(name, definition, options) {
+function fillTemplate(name, definition, options, meta) {
     const realName = name
         .ToCamelCase()
         .Capitalize();
@@ -40,18 +42,19 @@ function fillTemplate(name, definition, options) {
 **/
 const {Model} = require('sequelize');
 
-module.exports = (sequelize, DataTypes) => {
+module.exports.def = (sequelize, DataTypes) => {
     class ${realName} extends Model { }
     ${realName}.init(${definition}, ${options});
     return ${realName};
-};`;
+};
+module.exports.meta = ${meta};`;
 }
 
 function parseDefinition(def) {
     let tmp = '{\n';
     for (const key of Object.keys(def)) {
         const typeDefinition = def[key];
-        tmp += `\t\t${key}: ${selectType(typeDefinition)}\n`;
+        tmp += `\t\t${key}: ${selectType(typeDefinition)},\n`;
     }
     tmp += '\t}';
     return tmp;
@@ -85,11 +88,7 @@ function selectType(def) {
         case 'tinyblob':
         case 'range':
         case 'geometry':
-            let ele = '{';
-            for (const key of Object.keys(def.options)) {
-                ele += `${key}:${def.options[key]}`;
-            }
-            tmp += `(${ele}})`;
+            tmp += `(${JSON.stringify(def.options)})`;
             break;
     }
     return tmp;
@@ -109,6 +108,6 @@ module.exports.POST = (req, res, next) => {
     if (fs.existsSync(file)) {
         fs.unlinkSync(file);
     }
-    fs.writeFileSync(file, fillTemplate(req.body.name, parseDefinition(req.body.definition), parseOptions(req.body.options)));
+    fs.writeFileSync(file, fillTemplate(req.body.name, parseDefinition(req.body.definition), parseOptions(req.body.options), JSON.stringify(req.body.meta)));
     db.sync().then(next({error:null,msg:'model created'}));
 };

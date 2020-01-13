@@ -23,7 +23,10 @@ function readModelDefinitions(folder) {
         if (fullpath.EndsWith('.model.js')) {
             const filename = entry.Split('.model.js').LastOrDefault();
             const fn = require(fullpath);
-            MODELS[filename] = INSTANCE.instance.import(filename, fn);
+            MODELS[filename] = {
+                instance: INSTANCE.instance.import(filename, fn.def),
+                meta: fn.meta,
+            };
         }
     }
 }
